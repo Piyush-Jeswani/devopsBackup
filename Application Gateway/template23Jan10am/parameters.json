@@ -1,0 +1,57 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "value": "eastus"
+        },
+        "applicationGatewayName": {
+            "value": "AppGatewayName23Jan10am"
+        },
+        "tier": {
+            "value": "WAF"
+        },
+        "skuSize": {
+            "value": "WAF_Medium"
+        },
+        "capacity": {
+            "value": 2
+        },
+        "frontEndPort": {
+            "value": 80
+        },
+        "subnetName": {
+            "value": "default"
+        },
+        "enableHttp2": {
+            "value": false
+        },
+        "zones": {
+            "value": []
+        },
+        "virtualNetworkName": {
+            "value": "VirtualNetwork23Jan10am"
+        },
+        "virtualNetworkPrefix": {
+            "value": "10.1.0.0/16"
+        },
+        "subnetPrefix": {
+            "value": "10.1.0.0/24"
+        },
+        "publicIpAddressName": {
+            "value": "AppGatewayName23Jan10am-ip"
+        },
+        "sku": {
+            "value": "Basic"
+        },
+        "allocationMethod": {
+            "value": "Dynamic"
+        },
+        "publicIpZones": {
+            "value": []
+        },
+        "idleTimeoutInMinutes": {
+            "value": 4
+        }
+    }
+}

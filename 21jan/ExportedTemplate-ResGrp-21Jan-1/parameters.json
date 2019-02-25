@@ -1,0 +1,90 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "publicIPAddresses_AppGatewayPublicIPAddress_domainNameLabel": {
+            "value": null
+        },
+        "virtualMachines_FirstVM_name": {
+            "value": "VMfirst"
+        },
+        "virtualNetworks_VirtualNetwork_name": {
+            "value": "vnetpiyush"
+        },
+        "virtualMachines_SecondVM_name": {
+            "value": "VMsecond"
+        },
+        "networkInterfaces_FirstVM_name": {
+            "value": "nicFirstVM"
+        },
+        "publicIPAddresses_FirstVMip_name": {
+            "value": "publicIPfirstVM"
+        },
+        "networkInterfaces_SecondVM_name": {
+            "value": "nicSecondVM"
+        },
+        "networkSecurityGroups_FirstVM_nsg_name": {
+            "value": "nsgFirstVM"
+        },
+        "publicIPAddresses_SecondVMip_name": {
+            "value": "publicIPsecondVM"
+        },
+        "availabilitySets_VMsetForBackup_name": {
+            "value": "availableSetVM"
+        },
+        "applicationGateways_AppGateway_name": {
+            "value": "piyushAppGateway"
+        },
+        "storageAccounts_ForVMWithDiag_name": {
+            "value": "storageForVM"
+        },
+        "storageAccounts_AppGatewayStorage_name": {
+            "value": "StorageApplicationGateway"
+        },
+        "networkSecurityGroups_SecondVM_nsg_name": {
+            "value": "nsgSecondVM"
+        },
+        "publicIPAddresses_AppGatewayPublicIPAddress_name": {
+            "value": "publicIpAppgateway"
+        },
+        "subnets_AppGateway_name": {
+            "value": "subnetAppgateway"
+        },
+        "subnets_BackendSubnet_name": {
+            "value": "backEndSubnet"
+        },
+        "securityRules_FirstVM_RDP_name": {
+            "value": "firstVMrdp"
+        },
+        "securityRules_FirstVM_Port_80_name": {
+            "value": "firstVMPort80"
+        },
+        "securityRules_SecondVM_RDP_name": {
+            "value": "SecondVMrdp"
+        },
+        "securityRules_SecondVM_Port_80_name": {
+            "value": "SecondVMport80"
+        },
+        "virtualMachines_FirstVM_id": {
+            "value": "firstVMid"
+        },
+        "virtualMachines_SecondVM_id": {
+            "value": "secondVMid"
+        },
+        "applicationGateways_AppGateway_FrontEndIP_id": {
+            "value": "appGatewayFrontEnd"
+        },
+        "applicationGateways_AppGateway_FrontEndPort_id": {
+            "value": "appGatewayFrontEndPort"
+        },
+        "applicationGateways_AppGateway_HttpListener_id": {
+            "value": "appGatewayHttp"
+        },
+        "applicationGateways_AppGateway_BackEndPool_id": {
+            "value": "appGatewayBackEnd"
+        },
+        "applicationGateways_AppGateway_BackEndHttpSetting_id": {
+            "value": "appGatewayHttpBackend"
+        }
+    }
+}

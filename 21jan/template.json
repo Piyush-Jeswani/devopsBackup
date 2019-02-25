@@ -1,0 +1,1169 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "publicIPAddresses_AppGatewayPublicIPAddress_domainNameLabel": {
+            "defaultValue": null,
+            "type": "SecureString"
+        },
+        "virtualMachines_FirstVM_name": {
+            "defaultValue": "myVM",
+            "type": "String"
+        },
+        "virtualNetworks_VirtualNetwork_name": {
+            "defaultValue": "myVNet",
+            "type": "String"
+        },
+        "virtualMachines_SecondVM_name": {
+            "defaultValue": "VM2-21Jan",
+            "type": "String"
+        },
+        "networkInterfaces_FirstVM_name": {
+            "defaultValue": "myvm827",
+            "type": "String"
+        },
+        "publicIPAddresses_FirstVMip_name": {
+            "defaultValue": "myVM-ip",
+            "type": "String"
+        },
+        "networkInterfaces_SecondVM_name": {
+            "defaultValue": "vm2-21jan187",
+            "type": "String"
+        },
+        "networkSecurityGroups_FirstVM_nsg_name": {
+            "defaultValue": "myVM-nsg",
+            "type": "String"
+        },
+        "publicIPAddresses_SecondVMip_name": {
+            "defaultValue": "VM2-21Jan-ip",
+            "type": "String"
+        },
+        "availabilitySets_VMsetForBackup_name": {
+            "defaultValue": "VMsetForBackup",
+            "type": "String"
+        },
+        "applicationGateways_AppGateway_name": {
+            "defaultValue": "myAppGateway",
+            "type": "String"
+        },
+        "storageAccounts_ForVMWithDiag_name": {
+            "defaultValue": "resgrp21jan1diag",
+            "type": "String"
+        },
+        "storageAccounts_AppGatewayStorage_name": {
+            "defaultValue": "myappgatewaystore1",
+            "type": "String"
+        },
+        "networkSecurityGroups_SecondVM_nsg_name": {
+            "defaultValue": "VM2-21Jan-nsg",
+            "type": "String"
+        },
+        "publicIPAddresses_AppGatewayPublicIPAddress_name": {
+            "defaultValue": "myAGPublicIPAddress",
+            "type": "String"
+        },
+        "subnets_AppGateway_name": {
+            "defaultValue": "myAGSubnet",
+            "type": "String"
+        },
+        "subnets_myBackendSubnet_name": {
+            "defaultValue": "myBackendSubnet",
+            "type": "String"
+        },
+        "securityRules_FirstVM_RDP_name": {
+            "defaultValue": "RDP",
+            "type": "String"
+        },
+        "securityRules_FirstVM_Port_80_name": {
+            "defaultValue": "Port_80",
+            "type": "String"
+        },
+        "securityRules_SecondVM_RDP_name": {
+            "defaultValue": "RDP",
+            "type": "String"
+        },
+        "securityRules_SecondVM_Port_80_name": {
+            "defaultValue": "Port_80",
+            "type": "String"
+        },
+        "virtualMachines_FirstVM_id": {
+            "defaultValue": "",
+            "type": "String"
+        },
+        "virtualMachines_SecondVM_id": {
+            "defaultValue": "",
+            "type": "String"
+        },
+        "applicationGateways_AppGateway_FrontEndIP_id": {
+            "defaultValue": "",
+            "type": "String"
+        },
+        "applicationGateways_AppGateway_FrontEndPort_id": {
+            "defaultValue": "",
+            "type": "String"
+        },
+        "applicationGateways_AppGateway_HttpListener_id": {
+            "defaultValue": "",
+            "type": "String"
+        },
+        "applicationGateways_AppGateway_BackEndPool_id": {
+            "defaultValue": "",
+            "type": "String"
+        },
+        "applicationGateways_AppGateway_BackEndHttpSetting_id": {
+            "defaultValue": "",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "comments": "To deploy highly available virtual machines we have used Availability Sets",
+            "type": "Microsoft.Compute/availabilitySets",
+            "sku": {
+                "name": "Aligned"
+            },
+            "name": "[parameters('availabilitySets_VMsetForBackup_name')]",
+            "apiVersion": "2018-06-01",
+            "location": "eastus",
+            "tags": {},
+            "scale": null,
+            "properties": {
+                "platformUpdateDomainCount": 5,
+                "platformFaultDomainCount": 2,
+                "virtualMachines": [
+                    {
+                        "id": "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachines_FirstVM_name'))]"
+                    }
+                ]
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachines_FirstVM_name'))]"
+            ]
+        },
+        {
+            "comments": "First VM Machine",
+            "type": "Microsoft.Compute/virtualMachines",
+            "name": "[parameters('virtualMachines_FirstVM_name')]",
+            "apiVersion": "2018-06-01",
+            "location": "eastus",
+            "tags": {},
+            "scale": null,
+            "properties": {
+                "availabilitySet": {
+                    "id": "[resourceId('Microsoft.Compute/availabilitySets', parameters('availabilitySets_VMsetForBackup_name'))]"
+                },
+                "hardwareProfile": {
+                    "vmSize": "Standard_B2s"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "MicrosoftWindowsServer",
+                        "offer": "WindowsServer",
+                        "sku": "2016-Datacenter",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "osType": "Windows",
+                        "name": "[concat(parameters('virtualMachines_FirstVM_name'),'_OsDisk_1_0c90f86663df425790fdf36f991e42e8')]",
+                        "createOption": "FromImage",
+                        "caching": "ReadWrite",
+                        "managedDisk": {
+                            "storageAccountType": "Premium_LRS",
+                            "id": "[parameters('virtualMachines_FirstVM_id')]"
+                        },
+                        "diskSizeGB": 127
+                    },
+                    "dataDisks": []
+                },
+                "osProfile": {
+                    "computerName": "[parameters('virtualMachines_FirstVM_name')]",
+                    "adminUsername": "azureuser",
+                    "windowsConfiguration": {
+                        "provisionVMAgent": true,
+                        "enableAutomaticUpdates": true
+                    },
+                    "secrets": [],
+                    "allowExtensionOperations": true
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_FirstVM_name'))]"
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true,
+                        "storageUri": "[concat('https', '://', parameters('storageAccounts_ForVMWithDiag_name'), '.blob.core.windows.net', '/')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/availabilitySets', parameters('availabilitySets_VMsetForBackup_name'))]",
+                "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_FirstVM_name'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_ForVMWithDiag_name'))]"
+            ]
+        },
+        {
+            "comments": "Second Virtual Machine",
+            "type": "Microsoft.Compute/virtualMachines",
+            "name": "[parameters('virtualMachines_SecondVM_name')]",
+            "apiVersion": "2018-06-01",
+            "location": "eastus",
+            "tags": {},
+            "scale": null,
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_B1ms"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "MicrosoftWindowsServer",
+                        "offer": "WindowsServer",
+                        "sku": "2016-Datacenter",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "osType": "Windows",
+                        "name": "[concat(parameters('virtualMachines_SecondVM_name'),'_OsDisk_1_ce7b104cd22c4e6fae04e2a473befb0f')]",
+                        "createOption": "FromImage",
+                        "caching": "ReadWrite",
+                        "managedDisk": {
+                            "storageAccountType": "Premium_LRS",
+                            "id": "[parameters('virtualMachines_SecondVM_id')]"
+                        },
+                        "diskSizeGB": 127
+                    },
+                    "dataDisks": []
+                },
+                "osProfile": {
+                    "computerName": "[parameters('virtualMachines_SecondVM_name')]",
+                    "adminUsername": "azureuser",
+                    "windowsConfiguration": {
+                        "provisionVMAgent": true,
+                        "enableAutomaticUpdates": true
+                    },
+                    "secrets": [],
+                    "allowExtensionOperations": true
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_SecondVM_name'))]"
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true,
+                        "storageUri": "[concat('https', '://', parameters('storageAccounts_ForVMWithDiag_name'), '.blob.core.windows.net', '/')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_SecondVM_name'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_ForVMWithDiag_name'))]"
+            ]
+        },
+        {
+            "comments": "Application Getways.",
+            "type": "Microsoft.Network/applicationGateways",
+            "name": "[parameters('applicationGateways_AppGateway_name')]",
+            "apiVersion": "2018-10-01",
+            "location": "eastus",
+            "scale": null,
+            "properties": {
+                "provisioningState": "Succeeded",
+                "resourceGuid": "414bea7d-94ce-4dde-843d-c390b64649b6",
+                "sku": {
+                    "name": "WAF_Medium",
+                    "tier": "WAF",
+                    "capacity": 2
+                },
+                "gatewayIPConfigurations": [
+                    {
+                        "name": "appGatewayIpConfig",                       
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_VirtualNetwork_name'), parameters('subnets_AppGateway_name'))]"
+                            }
+                        },
+                        "type": "Microsoft.Network/applicationGateways/gatewayIPConfigurations"
+                    }
+                ],
+                "sslCertificates": [],
+                "authenticationCertificates": [],
+                "frontendIPConfigurations": [
+                    {
+                        "name": "appGatewayFrontendIP",                        
+                        "type": "Microsoft.Network/applicationGateways/frontendIPConfigurations",
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_AppGatewayPublicIPAddress_name'))]"
+                            }
+                        }
+                    }
+                ],
+                "frontendPorts": [
+                    {
+                        "name": "appGatewayFrontendPort",                       
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "port": 80
+                        },
+                        "type": "Microsoft.Network/applicationGateways/frontendPorts"
+                    }
+                ],
+                "backendAddressPools": [
+                    {
+                        "name": "appGatewayBackendPool",                       
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "backendIPConfigurations": [
+                                {
+                                    "id": "[concat(resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_FirstVM_name')), '/ipConfigurations/ipconfig1')]"
+                                },
+                                {
+                                    "id": "[concat(resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_SecondVM_name')), '/ipConfigurations/ipconfig1')]"
+                                }
+                            ],
+                            "backendAddresses": []
+                        },
+                        "type": "Microsoft.Network/applicationGateways/backendAddressPools"
+                    }
+                ],
+                "backendHttpSettingsCollection": [
+                    {
+                        "name": "appGatewayBackendHttpSettings",                        
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "port": 80,
+                            "protocol": "Http",
+                            "cookieBasedAffinity": "Disabled",
+                            "pickHostNameFromBackendAddress": false,
+                            "requestTimeout": 30
+                        },
+                        "type": "Microsoft.Network/applicationGateways/backendHttpSettingsCollection"
+                    }
+                ],
+                "httpListeners": [
+                    {
+                        "name": "appGatewayHttpListener",                       
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "frontendIPConfiguration": {
+                                "id": "[parameters('applicationGateways_AppGateway_FrontEndIP_id')]"
+                            },
+                            "frontendPort": {
+                                "id": "[parameters('applicationGateways_AppGateway_FrontEndPort_id')]"
+                            },
+                            "protocol": "Http",
+                            "requireServerNameIndication": false
+                        },
+                        "type": "Microsoft.Network/applicationGateways/httpListeners"
+                    }
+                ],
+                "urlPathMaps": [],
+                "requestRoutingRules": [
+                    {
+                        "name": "rule1",                        
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "ruleType": "Basic",
+                            "httpListener": {
+                                "id": "[parameters('applicationGateways_AppGateway_HttpListener_id')]"
+                            },
+                            "backendAddressPool": {
+                                "id": "[parameters('applicationGateways_AppGateway_BackEndPool_id')]"
+                            },
+                            "backendHttpSettings": {
+                                "id": "[parameters('applicationGateways_AppGateway_BackEndHttpSetting_id')]"
+                            }
+                        },
+                        "type": "Microsoft.Network/applicationGateways/requestRoutingRules"
+                    }
+                ],
+                "probes": [],
+                "rewriteRuleSets": [],
+                "redirectConfigurations": [],
+                "webApplicationFirewallConfiguration": {
+                    "enabled": false,
+                    "firewallMode": "Detection",
+                    "ruleSetType": "OWASP",
+                    "ruleSetVersion": "2.2.9",
+                    "disabledRuleGroups": []
+                },
+                "enableHttp2": false
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_VirtualNetwork_name'), parameters('subnets_AppGateway_name'))]",
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_AppGatewayPublicIPAddress_name'))]",
+                "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_FirstVM_name'))]",
+                "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_SecondVM_name'))]"
+            ]
+        },
+        {
+            "comments": "Nic Card for First VM",
+            "type": "Microsoft.Network/networkInterfaces",
+            "name": "[parameters('networkInterfaces_FirstVM_name')]",
+            "apiVersion": "2018-10-01",
+            "location": "eastus",
+            "scale": null,
+            "properties": {
+                "provisioningState": "Succeeded",
+                "resourceGuid": "2925c156-ddd2-4ccc-b1d6-a82095cf0db9",
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",                        
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "privateIPAddress": "10.2.1.4",
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_FirstVMip_name'))]"
+                            },
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_VirtualNetwork_name'), parameters('subnets_myBackendSubnet_name'))]"
+                            },
+                            "primary": true,
+                            "privateIPAddressVersion": "IPv4",
+                            "applicationGatewayBackendAddressPools": [
+                                {
+                                    "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_AppGateway_name')), '/backendAddressPools/appGatewayBackendPool')]"
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "dnsSettings": {
+                    "dnsServers": [],
+                    "appliedDnsServers": [],
+                    "internalDomainNameSuffix": "utcrkruxlipe1ht51z1tfgup1g.bx.internal.cloudapp.net"
+                },
+                "macAddress": "00-0D-3A-12-A9-69",
+                "enableAcceleratedNetworking": false,
+                "enableIPForwarding": false,
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_FirstVM_nsg_name'))]"
+                },
+                "primary": true,
+                "tapConfigurations": []
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_FirstVMip_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_VirtualNetwork_name'), parameters('subnets_myBackendSubnet_name'))]",
+                "[resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_AppGateway_name'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_FirstVM_nsg_name'))]"
+            ]
+        },
+        {
+            "comments": "Nic Card for Second VM",
+            "type": "Microsoft.Network/networkInterfaces",
+            "name": "[parameters('networkInterfaces_SecondVM_name')]",
+            "apiVersion": "2018-10-01",
+            "location": "eastus",
+            "scale": null,
+            "properties": {
+                "provisioningState": "Succeeded",
+                "resourceGuid": "2535e554-4ec6-4fa3-ab58-94a5eeacccdb",
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",                        
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "privateIPAddress": "10.2.1.5",
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_SecondVMip_name'))]"
+                            },
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_VirtualNetwork_name'), parameters('subnets_myBackendSubnet_name'))]"
+                            },
+                            "primary": true,
+                            "privateIPAddressVersion": "IPv4",
+                            "applicationGatewayBackendAddressPools": [
+                                {
+                                    "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_AppGateway_name')), '/backendAddressPools/appGatewayBackendPool')]"
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "dnsSettings": {
+                    "dnsServers": [],
+                    "appliedDnsServers": [],
+                    "internalDomainNameSuffix": "utcrkruxlipe1ht51z1tfgup1g.bx.internal.cloudapp.net"
+                },
+                "macAddress": "00-0D-3A-1F-2B-AF",
+                "enableAcceleratedNetworking": false,
+                "enableIPForwarding": false,
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_SecondVM_nsg_name'))]"
+                },
+                "primary": true,
+                "tapConfigurations": []
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_SecondVMip_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_VirtualNetwork_name'), parameters('subnets_myBackendSubnet_name'))]",
+                "[resourceId('Microsoft.Network/applicationGateways', parameters('applicationGateways_AppGateway_name'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_SecondVM_nsg_name'))]"
+            ]
+        },
+        {
+            "comments": "Firewall - NSG for First VM",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "name": "[parameters('networkSecurityGroups_FirstVM_nsg_name')]",
+            "apiVersion": "2018-10-01",
+            "location": "eastus",
+            "tags": {},
+            "scale": null,
+            "properties": {
+                "provisioningState": "Succeeded",
+                "resourceGuid": "43447be2-08b1-45f1-8fb0-69d3ace94fb6",
+                "securityRules": [
+                    {
+                        "name": "RDP",                        
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "3389",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 300,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "Port_80",                       
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "80",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 310,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    }
+                ],
+                "defaultSecurityRules": [
+                    {
+                        "name": "AllowVnetInBound",                        
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "description": "Allow inbound traffic from all VMs in VNET",
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 65000,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "AllowAzureLoadBalancerInBound",                        
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "description": "Allow inbound traffic from azure load balancer",
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "AzureLoadBalancer",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 65001,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "DenyAllInBound",                        
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "description": "Deny all inbound traffic",
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Deny",
+                            "priority": 65500,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "AllowVnetOutBound",                        
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "description": "Allow outbound traffic from all VMs to all VMs in VNET",
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 65000,
+                            "direction": "Outbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "AllowInternetOutBound",                        
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "description": "Allow outbound traffic from all VMs to Internet",
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "Internet",
+                            "access": "Allow",
+                            "priority": 65001,
+                            "direction": "Outbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "DenyAllOutBound",                        
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "description": "Deny all outbound traffic",
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Deny",
+                            "priority": 65500,
+                            "direction": "Outbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    }
+                ]
+            },
+            "dependsOn": []
+        },
+        {
+            "comments": "Second VM NSG Firewall type for security",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "name": "[parameters('networkSecurityGroups_SecondVM_nsg_name')]",
+            "apiVersion": "2018-10-01",
+            "location": "eastus",
+            "tags": {},
+            "scale": null,
+            "properties": {
+                "provisioningState": "Succeeded",
+                "resourceGuid": "c58a3c44-c0e2-49c5-99cd-b59a3287b674",
+                "securityRules": [
+                    {
+                        "name": "RDP",                       
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "3389",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 300,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "Port_80",                        
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "80",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 310,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    }
+                ],
+                "defaultSecurityRules": [
+                    {
+                        "name": "AllowVnetInBound",                      
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "description": "Allow inbound traffic from all VMs in VNET",
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 65000,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "AllowAzureLoadBalancerInBound",                        
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "description": "Allow inbound traffic from azure load balancer",
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "AzureLoadBalancer",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 65001,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "DenyAllInBound",                       
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "description": "Deny all inbound traffic",
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Deny",
+                            "priority": 65500,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "AllowVnetOutBound",                        
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "description": "Allow outbound traffic from all VMs to all VMs in VNET",
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 65000,
+                            "direction": "Outbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "AllowInternetOutBound",                       
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "description": "Allow outbound traffic from all VMs to Internet",
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "Internet",
+                            "access": "Allow",
+                            "priority": 65001,
+                            "direction": "Outbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "DenyAllOutBound",                       
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "description": "Deny all outbound traffic",
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Deny",
+                            "priority": 65500,
+                            "direction": "Outbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    }
+                ]
+            },
+            "dependsOn": []
+        },
+        {
+            "comments": "Public IP address",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "sku": {
+                "name": "Basic",
+                "tier": "Regional"
+            },
+            "name": "[parameters('publicIPAddresses_AppGatewayPublicIPAddress_name')]",
+            "apiVersion": "2018-10-01",
+            "location": "eastus",
+            "scale": null,
+            "properties": {
+                "provisioningState": "Succeeded",
+                "resourceGuid": "5140f2e2-64d0-45bd-8f2f-73b92307c6c3",
+                "ipAddress": "104.41.140.226",
+                "publicIPAddressVersion": "IPv4",
+                "publicIPAllocationMethod": "Dynamic",
+                "idleTimeoutInMinutes": 4,
+                "dnsSettings": {
+                    "fqdn": "b6acf428-c35a-442f-9609-e3bbc5fd4f94.cloudapp.net",
+                    "domainNameLabel": "[parameters('publicIPAddresses_AppGatewayPublicIPAddress_domainNameLabel')]"
+                },
+                "ipTags": []
+            },
+            "dependsOn": []
+        },
+        {
+            "comments": "First VM Ip address",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "sku": {
+                "name": "Basic",
+                "tier": "Regional"
+            },
+            "name": "[parameters('publicIPAddresses_FirstVMip_name')]",
+            "apiVersion": "2018-10-01",
+            "location": "eastus",
+            "tags": {},
+            "scale": null,
+            "properties": {
+                "provisioningState": "Succeeded",
+                "resourceGuid": "6b95583e-3b16-4326-a2d6-cb3b54548c5d",
+                "ipAddress": "40.121.107.45",
+                "publicIPAddressVersion": "IPv4",
+                "publicIPAllocationMethod": "Dynamic",
+                "idleTimeoutInMinutes": 4,
+                "ipTags": []
+            },
+            "dependsOn": []
+        },
+        {
+            "comments": "Second VM Ip address",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "sku": {
+                "name": "Basic",
+                "tier": "Regional"
+            },
+            "name": "[parameters('publicIPAddresses_SecondVMip_name')]",
+            "apiVersion": "2018-10-01",
+            "location": "eastus",
+            "tags": {},
+            "scale": null,
+            "properties": {
+                "provisioningState": "Succeeded",
+                "resourceGuid": "92f9f676-c492-488a-a310-c7cd0e4996b7",
+                "ipAddress": "40.87.82.155",
+                "publicIPAddressVersion": "IPv4",
+                "publicIPAllocationMethod": "Dynamic",
+                "idleTimeoutInMinutes": 4,
+                "ipTags": []
+            },
+            "dependsOn": []
+        },
+        {
+            "comments": "Vnet Name.",
+            "type": "Microsoft.Network/virtualNetworks",
+            "name": "[parameters('virtualNetworks_VirtualNetwork_name')]",
+            "apiVersion": "2018-10-01",
+            "location": "eastus",
+            "scale": null,
+            "properties": {
+                "provisioningState": "Succeeded",
+                "resourceGuid": "4615c5a4-5a97-4d1e-9e7f-de77329a8fde",
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.2.0.0/16"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "myAGSubnet",                        
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "addressPrefix": "10.2.0.0/24",
+                            "delegations": []
+                        }
+                    },
+                    {
+                        "name": "myBackendSubnet",                        
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "addressPrefix": "10.2.1.0/24",
+                            "serviceEndpoints": [],
+                            "delegations": []
+                        }
+                    }
+                ],
+                "virtualNetworkPeerings": [],
+                "enableDdosProtection": false,
+                "enableVmProtection": false
+            },
+            "dependsOn": []
+        },
+        {
+            "comments": "Storage Account for Vm",
+            "type": "Microsoft.Storage/storageAccounts",
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "kind": "Storage",
+            "name": "[parameters('storageAccounts_ForVMWithDiag_name')]",
+            "apiVersion": "2018-07-01",
+            "location": "eastus",
+            "tags": {},
+            "scale": null,
+            "properties": {
+                "networkAcls": {
+                    "bypass": "AzureServices",
+                    "virtualNetworkRules": [],
+                    "ipRules": [],
+                    "defaultAction": "Allow"
+                },
+                "supportsHttpsTrafficOnly": false,
+                "encryption": {
+                    "services": {
+                        "file": {
+                            "enabled": true
+                        },
+                        "blob": {
+                            "enabled": true
+                        }
+                    },
+                    "keySource": "Microsoft.Storage"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "comments": "Storage account for application gateway",
+            "type": "Microsoft.Storage/storageAccounts",
+            "sku": {
+                "name": "Standard_RAGRS",
+                "tier": "Standard"
+            },
+            "kind": "StorageV2",
+            "name": "[parameters('storageAccounts_AppGatewayStorage_name')]",
+            "apiVersion": "2018-07-01",
+            "location": "eastus",
+            "tags": {},
+            "scale": null,
+            "properties": {
+                "networkAcls": {
+                    "bypass": "AzureServices",
+                    "virtualNetworkRules": [],
+                    "ipRules": [],
+                    "defaultAction": "Allow"
+                },
+                "supportsHttpsTrafficOnly": true,
+                "encryption": {
+                    "services": {
+                        "file": {
+                            "enabled": true
+                        },
+                        "blob": {
+                            "enabled": true
+                        }
+                    },
+                    "keySource": "Microsoft.Storage"
+                },
+                "accessTier": "Hot"
+            },
+            "dependsOn": []
+        },
+        {
+            "comments": "Name for First VM RDP name",
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "name": "[concat(parameters('networkSecurityGroups_FirstVM_nsg_name'), '/', parameters('securityRules_FirstVM_RDP_name'))]",
+            "apiVersion": "2018-10-01",
+            "scale": null,
+            "properties": {
+                "provisioningState": "Succeeded",
+                "protocol": "TCP",
+                "sourcePortRange": "*",
+                "destinationPortRange": "3389",
+                "sourceAddressPrefix": "*",
+                "destinationAddressPrefix": "*",
+                "access": "Allow",
+                "priority": 300,
+                "direction": "Inbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_FirstVM_nsg_name'))]"
+            ]
+        },
+        {
+            "comments": "First VM port 80 name.",
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "name": "[concat(parameters('networkSecurityGroups_FirstVM_nsg_name'), '/', parameters('securityRules_FirstVM_Port_80_name'))]",
+            "apiVersion": "2018-10-01",
+            "scale": null,
+            "properties": {
+                "provisioningState": "Succeeded",
+                "protocol": "*",
+                "sourcePortRange": "*",
+                "destinationPortRange": "80",
+                "sourceAddressPrefix": "*",
+                "destinationAddressPrefix": "*",
+                "access": "Allow",
+                "priority": 310,
+                "direction": "Inbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_FirstVM_nsg_name'))]"
+            ]
+        },
+        {
+            "comments": "SecondVM_RDP_name",
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "name": "[concat(parameters('networkSecurityGroups_SecondVM_nsg_name'), '/', parameters('securityRules_SecondVM_RDP_name'))]",
+            "apiVersion": "2018-10-01",
+            "scale": null,
+            "properties": {
+                "provisioningState": "Succeeded",
+                "protocol": "TCP",
+                "sourcePortRange": "*",
+                "destinationPortRange": "3389",
+                "sourceAddressPrefix": "*",
+                "destinationAddressPrefix": "*",
+                "access": "Allow",
+                "priority": 300,
+                "direction": "Inbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_SecondVM_nsg_name'))]"
+            ]
+        },
+        {
+            "comments": "SecondVM_Port_80_name",
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "name": "[concat(parameters('networkSecurityGroups_SecondVM_nsg_name'), '/', parameters('securityRules_SecondVM_Port_80_name'))]",
+            "apiVersion": "2018-10-01",
+            "scale": null,
+            "properties": {
+                "provisioningState": "Succeeded",
+                "protocol": "*",
+                "sourcePortRange": "*",
+                "destinationPortRange": "80",
+                "sourceAddressPrefix": "*",
+                "destinationAddressPrefix": "*",
+                "access": "Allow",
+                "priority": 310,
+                "direction": "Inbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_SecondVM_nsg_name'))]"
+            ]
+        },
+        {
+            "comments": "",
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "name": "[concat(parameters('virtualNetworks_VirtualNetwork_name'), '/', parameters('subnets_AppGateway_name'))]",
+            "apiVersion": "2018-10-01",
+            "scale": null,
+            "properties": {
+                "provisioningState": "Succeeded",
+                "addressPrefix": "10.2.0.0/24",
+                "delegations": []
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_VirtualNetwork_name'))]"
+            ]
+        },
+        {
+            "comments": "",
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "name": "[concat(parameters('virtualNetworks_VirtualNetwork_name'), '/', parameters('subnets_myBackendSubnet_name'))]",
+            "apiVersion": "2018-10-01",
+            "scale": null,
+            "properties": {
+                "provisioningState": "Succeeded",
+                "addressPrefix": "10.2.1.0/24",
+                "serviceEndpoints": [],
+                "delegations": []
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_VirtualNetwork_name'))]"
+            ]
+        }
+    ]
+}

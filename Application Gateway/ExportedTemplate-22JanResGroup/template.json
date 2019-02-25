@@ -1,0 +1,259 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "publicIPAddresses_AppGateway_ip_domainNameLabel": {
+            "defaultValue": null,
+            "type": "SecureString"
+        },
+        "applicationGateways_AppGateway_name": {
+            "defaultValue": "AppGatewaytest2",
+            "type": "String"
+        },
+        "virtualNetworks_VirtualNetwork_name": {
+            "defaultValue": "VirtualNetwork",
+            "type": "String"
+        },
+        "publicIPAddresses_AppGateway_ip_name": {
+            "defaultValue": "AppGateway-ip",
+            "type": "String"
+        },
+        "subnets_SubnetTest_name": {
+            "defaultValue": "SubnetTest",
+            "type": "String"
+        },
+        "applicationGateways_AppGateway_id": {
+            "defaultValue": "appGatewayFrontendIP",
+            "type": "String"
+        },
+        "applicationGateways_AppGateway_id_1": {
+            "defaultValue": "appGatewayFrontendPort",
+            "type": "String"
+        },
+        "applicationGateways_AppGateway_id_2": {
+            "defaultValue": "appGatewayHttpListener",
+            "type": "String"
+        },
+        "applicationGateways_AppGateway_id_3": {
+            "defaultValue": "appGatewayBackendPool",
+            "type": "String"
+        },
+        "applicationGateways_AppGateway_id_4": {
+            "defaultValue": "appGatewayBackendHttpSettings",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "comments": "Generalized from resource: '/subscriptions/00fc6d8c-f624-42a9-b509-c0559c5590ac/resourceGroups/22JanResGroup/providers/Microsoft.Network/applicationGateways/AppGateway'.",
+            "type": "Microsoft.Network/applicationGateways",
+            "name": "[parameters('applicationGateways_AppGateway_name')]",
+            "apiVersion": "2018-10-01",
+            "location": "eastus",
+            "scale": null,
+            "properties": {
+                "provisioningState": "Succeeded",
+                "resourceGuid": "f30c7b94-84dd-491f-9a9a-901c7d3057e5",
+                "sku": {
+                    "name": "WAF_Medium",
+                    "tier": "WAF",
+                    "capacity": 2
+                },
+                "gatewayIPConfigurations": [
+                    {
+                        "name": "[concat(parameters('applicationGateways_AppGateway_name'),'appGatewayIpConfig')]",
+                        "etag": "W/\"b01b1310-72b3-4f06-9ddd-7c34fd926d24\"",
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_VirtualNetwork_name'), parameters('subnets_SubnetTest_name'))]"
+                            }
+                        },
+                        "type": "Microsoft.Network/applicationGateways/gatewayIPConfigurations"
+                    }
+                ],
+                "sslCertificates": [],
+                "authenticationCertificates": [],
+                "frontendIPConfigurations": [
+                    {
+                        "name": "[concat(parameters('applicationGateways_AppGateway_name'),'appGatewayFrontendIP')]",
+                        "etag": "W/\"b01b1310-72b3-4f06-9ddd-7c34fd926d24\"",
+                        "type": "Microsoft.Network/applicationGateways/frontendIPConfigurations",
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_AppGateway_ip_name'))]"
+                            }
+                        }
+                    }
+                ],
+                "frontendPorts": [
+                    {
+                        "name": "[concat(parameters('applicationGateways_AppGateway_name'),'appGatewayFrontendPort')]",
+                        "etag": "W/\"b01b1310-72b3-4f06-9ddd-7c34fd926d24\"",
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "port": 80
+                        },
+                        "type": "Microsoft.Network/applicationGateways/frontendPorts"
+                    }
+                ],
+                "backendAddressPools": [
+                    {
+                        "name": "[concat(parameters('applicationGateways_AppGateway_name'),'appGatewayBackendPool')]",
+                        "etag": "W/\"b01b1310-72b3-4f06-9ddd-7c34fd926d24\"",
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "backendAddresses": []
+                        },
+                        "type": "Microsoft.Network/applicationGateways/backendAddressPools"
+                    }
+                ],
+                "backendHttpSettingsCollection": [
+                    {
+                        "name": "[concat(parameters('applicationGateways_AppGateway_name'),'appGatewayBackendHttpSettings')]",
+                        "etag": "W/\"b01b1310-72b3-4f06-9ddd-7c34fd926d24\"",
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "port": 80,
+                            "protocol": "Http",
+                            "cookieBasedAffinity": "Disabled",
+                            "pickHostNameFromBackendAddress": false,
+                            "requestTimeout": 30
+                        },
+                        "type": "Microsoft.Network/applicationGateways/backendHttpSettingsCollection"
+                    }
+                ],
+                "httpListeners": [
+                    {
+                        "name": "[concat(parameters('applicationGateways_AppGateway_name'),'appGatewayHttpListener')]",
+                        "etag": "W/\"b01b1310-72b3-4f06-9ddd-7c34fd926d24\"",
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "frontendIPConfiguration": {
+                                "id": "[parameters('applicationGateways_AppGateway_id')]"
+                            },
+                            "frontendPort": {
+                                "id": "[parameters('applicationGateways_AppGateway_id_1')]"
+                            },
+                            "protocol": "Http",
+                            "requireServerNameIndication": false
+                        },
+                        "type": "Microsoft.Network/applicationGateways/httpListeners"
+                    }
+                ],
+                "urlPathMaps": [],
+                "requestRoutingRules": [
+                    {
+                        "name": "rule1",
+                        "etag": "W/\"b01b1310-72b3-4f06-9ddd-7c34fd926d24\"",
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "ruleType": "Basic",
+                            "httpListener": {
+                                "id": "[parameters('applicationGateways_AppGateway_id_2')]"
+                            },
+                            "backendAddressPool": {
+                                "id": "[parameters('applicationGateways_AppGateway_id_3')]"
+                            },
+                            "backendHttpSettings": {
+                                "id": "[parameters('applicationGateways_AppGateway_id_4')]"
+                            }
+                        },
+                        "type": "Microsoft.Network/applicationGateways/requestRoutingRules"
+                    }
+                ],
+                "probes": [],
+                "rewriteRuleSets": [],
+                "redirectConfigurations": [],
+                "webApplicationFirewallConfiguration": {
+                    "enabled": true,
+                    "firewallMode": "Detection",
+                    "ruleSetType": "OWASP",
+                    "ruleSetVersion": "3.0",
+                    "disabledRuleGroups": []
+                },
+                "enableHttp2": false
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_VirtualNetwork_name'), parameters('subnets_SubnetTest_name'))]",
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_AppGateway_ip_name'))]"
+            ]
+        },
+        {
+            "comments": "Generalized from resource: '/subscriptions/00fc6d8c-f624-42a9-b509-c0559c5590ac/resourceGroups/22JanResGroup/providers/Microsoft.Network/publicIPAddresses/AppGateway-ip'.",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "sku": {
+                "name": "Basic",
+                "tier": "Regional"
+            },
+            "name": "[parameters('publicIPAddresses_AppGateway_ip_name')]",
+            "apiVersion": "2018-10-01",
+            "location": "eastus",
+            "scale": null,
+            "properties": {
+                "provisioningState": "Succeeded",
+                "resourceGuid": "8ad653e3-594f-4d4a-a5d8-c9d647ba855d",
+                "ipAddress": "40.76.218.177",
+                "publicIPAddressVersion": "IPv4",
+                "publicIPAllocationMethod": "Dynamic",
+                "idleTimeoutInMinutes": 4,
+                "dnsSettings": {
+                    "fqdn": "f2f91a16-45d4-4b42-856b-d6e61db45be1.cloudapp.net",
+                    "domainNameLabel": "[parameters('publicIPAddresses_AppGateway_ip_domainNameLabel')]"
+                },
+                "ipTags": []
+            },
+            "dependsOn": []
+        },
+        {
+            "comments": "Generalized from resource: '/subscriptions/00fc6d8c-f624-42a9-b509-c0559c5590ac/resourceGroups/22JanResGroup/providers/Microsoft.Network/virtualNetworks/VirtualNetwork'.",
+            "type": "Microsoft.Network/virtualNetworks",
+            "name": "[parameters('virtualNetworks_VirtualNetwork_name')]",
+            "apiVersion": "2018-10-01",
+            "location": "eastus",
+            "scale": null,
+            "properties": {
+                "provisioningState": "Succeeded",
+                "resourceGuid": "80aaa9b5-62d9-4274-bcd9-d2876d686320",
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.1.0.0/16"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "SubnetTest",
+                        "etag": "W/\"cd145358-cf6b-4508-ac62-4c081626187f\"",
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "addressPrefix": "10.1.0.0/24",
+                            "delegations": []
+                        }
+                    }
+                ],
+                "virtualNetworkPeerings": [],
+                "enableDdosProtection": false,
+                "enableVmProtection": false
+            },
+            "dependsOn": []
+        },
+        {
+            "comments": "Generalized from resource: '/subscriptions/00fc6d8c-f624-42a9-b509-c0559c5590ac/resourceGroups/22JanResGroup/providers/Microsoft.Network/virtualNetworks/VirtualNetwork/subnets/SubnetTest'.",
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "name": "[concat(parameters('virtualNetworks_VirtualNetwork_name'), '/', parameters('subnets_SubnetTest_name'))]",
+            "apiVersion": "2018-10-01",
+            "scale": null,
+            "properties": {
+                "provisioningState": "Succeeded",
+                "addressPrefix": "10.1.0.0/24",
+                "delegations": []
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_VirtualNetwork_name'))]"
+            ]
+        }
+    ]
+}
